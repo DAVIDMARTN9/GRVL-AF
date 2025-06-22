@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Chosen Palette: Calm Harmony (Custom) - Background: #f8f9fa, Text: #212529, Primary: #495867, Accent1: #577399, Accent2: #BDD5EA, Accent3: #F7F7FF, Highlight: #FE5F55 -->
+    <!-- Application Structure Plan: A top-to-bottom 'scrollytelling' SPA designed to turn the report into a narrative. 1. Hero section introduces the range and its core value proposition. 2. 'The Foundation' section explains the shared, high-value frame. 3. An interactive 'Build & Compare' section allows users to click through the four models, dynamically updating specs, text, and a radar chart showing key performance metrics. This is the interactive core. 4. A 'Market Context' section benchmarks the range against key competitors using data-driven cards. 5. 'Final Verdict' provides clear, user-centric recommendations. This task-oriented structure (comparing models) is more intuitive for a potential buyer than mirroring the report's linear chapter structure. -->
+    <!-- Visualization & Content Choices: 
+        - Model Selector: Goal: Interact/Compare. Method: Clickable HTML tabs. Interaction: Updates text, stats, and the main radar chart via JavaScript. Justification: Provides a clear, user-driven way to compare the four models directly.
+        - Core Stats: Goal: Inform. Method: Dynamic text blocks and HTML progress bars. Justification: Presents key quantitative data (price, weight, gears) clearly for the selected model.
+        - Performance Metrics: Goal: Compare/Relationships. Method: Dynamic Radar Chart (Chart.js). Justification: The best method for multi-axial comparison, showing the trade-offs between Gearing, Simplicity, Braking Power, and All-Terrain Capability for each model in the range.
+        - Competitor Cards: Goal: Compare. Method: Styled HTML/CSS cards. Justification: Presents key competitor data in a digestible format without the need for a dense table.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Decathlon GRVL AF Bikes: UK Market Analysis</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@700&family=Source+Sans+Pro:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Source Sans Pro', sans-serif;
+            background-color: #f8f9fa;
+            color: #212529;
+        }
+        h1, h2, h3 {
+            font-family: 'Roboto Condensed', sans-serif;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px;
+        }
+        @media (min-width: 1024px) {
+            .chart-container {
+                height: 400px;
+            }
+        }
+        .tab-btn {
+            transition: all 0.3s ease;
+        }
+        .tab-btn.active {
+            background-color: #495867;
+            color: #F7F7FF;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+        .progress-bar-fill {
+            transition: width 0.5s ease-in-out;
+        }
+    </style>
+</head>
+<body class="antialiased leading-relaxed">
+
+    <header class="bg-[#495867] text-white py-12 px-4 text-center">
+        <h1 class="text-4xl md:text-5xl font-bold tracking-tight">ONE FRAME. FOUR MISSIONS.</h1>
+        <p class="max-w-3xl mx-auto mt-4 text-lg text-[#BDD5EA]">An Interactive Analysis of Decathlon's 2025 GRVL AF Gravel Bike Range</p>
+    </header>
+
+    <main class="container mx-auto mt-12 p-4">
+        
+        <section id="foundation" class="mb-16">
+            <h2 class="text-3xl font-bold text-center mb-4">The Common Foundation</h2>
+            <p class="max-w-3xl mx-auto text-center text-lg text-gray-700 mb-8">The entire GRVL AF range is built on a single, highly capable 6061 aluminium frame and carbon-bladed fork. This strategy provides every rider with the same core potential, regardless of price point, making the frame a future-proof investment worthy of upgrades.</p>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center max-w-5xl mx-auto">
+                <div class="bg-white p-6 rounded-lg shadow">
+                    <div class="text-5xl mb-3">⬌</div>
+                    <h3 class="text-xl font-bold mb-2">Huge Tyre Clearance</h3>
+                    <p class="text-gray-600">A class-leading max clearance of 700x50mm allows for exceptional comfort and traction on the roughest terrain.</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow">
+                    <div class="text-5xl mb-3">🔩</div>
+                    <h3 class="text-xl font-bold mb-2">Comprehensive Mounts</h3>
+                    <p class="text-gray-600">Fully equipped for racks, mudguards, and bikepacking bags, making it a true do-it-all adventure platform.</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow">
+                    <div class="text-5xl mb-3">🔧</div>
+                    <h3 class="text-xl font-bold mb-2">Reliable Standards</h3>
+                    <p class="text-gray-600">Built with a threaded bottom bracket and thru-axles for proven reliability and ease of maintenance.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="build-compare" class="bg-white p-6 md:p-8 rounded-lg shadow-lg mb-16">
+            <h2 class="text-3xl font-bold text-center mb-2">Build & Compare The Range</h2>
+            <p class="max-w-3xl mx-auto text-center text-lg text-gray-700 mb-8">While the frame is the same, the components define each bike's mission. Click a model below to see how the specifications and performance characteristics change at each price point.</p>
+            
+            <div id="tabs" class="grid grid-cols-2 lg:grid-cols-4 gap-2 md:gap-4 mb-8 max-w-4xl mx-auto">
+                <button class="tab-btn p-3 md:py-4 md:px-5 rounded-lg bg-[#BDD5EA] font-bold text-base md:text-lg" data-model="discovery">GRVL AF Discovery</button>
+                <button class="tab-btn p-3 md:py-4 md:px-5 rounded-lg bg-[#BDD5EA] font-bold text-base md:text-lg" data-model="sword">GRVL AF Sword</button>
+                <button class="tab-btn p-3 md:py-4 md:px-5 rounded-lg bg-[#BDD5EA] font-bold text-base md:text-lg" data-model="apex">GRVL AF Apex</button>
+                <button class="tab-btn p-3 md:py-4 md:px-5 rounded-lg bg-[#BDD5EA] font-bold text-base md:text-lg" data-model="grx">GRVL AF GRX</button>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+                <div id="model-details">
+                    <h3 id="model-name" class="text-3xl font-bold mb-1"></h3>
+                    <p id="model-price" class="text-2xl font-bold text-[#FE5F55] mb-4"></p>
+                    <p id="model-description" class="text-lg text-gray-700 mb-6"></p>
+                    <div class="space-y-4">
+                        <div>
+                            <div class="flex justify-between mb-1">
+                                <span class="font-bold text-gray-700">Drivetrain</span>
+                                <span id="model-drivetrain" class="font-semibold"></span>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between mb-1">
+                                <span class="font-bold text-gray-700">Brakes</span>
+                                <span id="model-brakes" class="font-semibold"></span>
+                            </div>
+                        </div>
+                         <div>
+                            <div class="flex justify-between mb-1">
+                                <span class="font-bold text-gray-700">Weight</span>
+                                <span id="model-weight" class="font-semibold"></span>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between mb-1">
+                                <span class="font-bold text-gray-700">Key Feature</span>
+                                <span id="model-feature" class="font-semibold text-right"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="model-radar-chart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <section id="market-context" class="mb-16">
+            <h2 class="text-3xl font-bold text-center mb-2">UK Market Context</h2>
+            <p class="max-w-3xl mx-auto text-center text-lg text-gray-700 mb-8">Decathlon's pricing and specification are aggressive. Here's how the top-tier and value-leader models stack up against established rivals from other major UK retailers.</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="bg-white p-6 rounded-lg shadow">
+                    <h3 class="font-bold text-xl mb-3 text-center">Value Showdown: GRVL AF Sword (£999)</h3>
+                    <div class="border-t pt-3">
+                        <p class="font-semibold">vs. Cannondale Topstone 4 (~£1300)</p>
+                        <p class="text-gray-600 mt-1">The Sword offers superior TRP Spyre dual-piston brakes over the Topstone's basic Promax units, representing a significant performance advantage for less money.</p>
+                    </div>
+                     <div class="border-t pt-3 mt-3">
+                        <p class="font-semibold">vs. Boardman ADV 8.6 (~£825)</p>
+                        <p class="text-gray-600 mt-1">While the Boardman is often cheaper, the Sword's modern 1x10 drivetrain offers a wider gear range and off-road simplicity compared to the ADV's road-focused 2x9 setup.</p>
+                    </div>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow">
+                    <h3 class="font-bold text-xl mb-3 text-center">Performance Showdown: GRVL AF GRX (£1700)</h3>
+                    <div class="border-t pt-3">
+                        <p class="font-semibold">vs. Boardman TRVL 8.9 DB (~£1800)</p>
+                        <p class="text-gray-600 mt-1">Decathlon focuses on gearing versatility with a 2x12 GRX groupset, while Boardman opts for a 1x12 groupset plus a RockShox suspension fork for ultimate off-road comfort.</p>
+                    </div>
+                    <div class="border-t pt-3 mt-3">
+                        <p class="font-semibold">vs. Ribble Allgrit AL (~£1699)</p>
+                        <p class="text-gray-600 mt-1">A direct competitor. The GRX offers the flexibility of a 2x system for road and touring, while the Ribble with SRAM Apex 1x12 targets the "pure gravel" rider valuing simplicity.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="verdict">
+            <h2 class="text-3xl font-bold text-center mb-2">Final Verdict & Recommendations</h2>
+            <p class="max-w-3xl mx-auto text-center text-lg text-gray-700 mb-8">The GRVL AF range offers exceptional value by pairing a high-quality, versatile frame with aggressive component choices. The right bike depends entirely on your budget and riding priorities.</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                 <div class="bg-white p-6 rounded-lg shadow border-l-4 border-[#577399]">
+                    <h3 class="font-bold text-lg">The Newcomer</h3>
+                    <p class="font-bold text-xl mt-1">GRVL AF Discovery</p>
+                    <p class="mt-2 text-gray-600">Ideal starting point. A clutched 1x drivetrain at this price is unheard of and builds off-road confidence. Plan to upgrade the brakes first.</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow border-l-4 border-[#495867]">
+                    <h3 class="font-bold text-lg">The Smart All-Rounder</h3>
+                    <p class="font-bold text-xl mt-1">GRVL AF Sword</p>
+                    <p class="mt-2 text-gray-600">The clear value sweet spot. Excellent brakes and a huge gear range make it a supremely capable do-it-all bike with no immediate compromises.</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow border-l-4 border-[#FE5F55]">
+                    <h3 class="font-bold text-lg">The Performance Seeker</h3>
+                    <p class="font-bold text-xl mt-1">GRVL AF Apex</p>
+                    <p class="mt-2 text-gray-600">The gateway to high performance. A full 12-speed hydraulic groupset at this price is a market-disrupting offer for the serious enthusiast.</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow border-l-4 border-[#212529]">
+                    <h3 class="font-bold text-lg">The Endurance Rider</h3>
+                    <p class="font-bold text-xl mt-1">GRVL AF GRX</p>
+                    <p class="mt-2 text-gray-600">The ultimate in versatility. The 2x12 GRX drivetrain is perfect for fast road sections, loaded touring, and all-day adventures.</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="text-center py-8 mt-12 bg-gray-200">
+        <p class="text-gray-600">Interactive application based on the 2025 Decathlon GRVL AF UK Benchmarking Report.</p>
+    </footer>
+
+    <script>
+        const modelData = {
+            discovery: {
+                name: 'GRVL AF Discovery',
+                price: '£699',
+                description: 'The access point to modern gravel riding, offering a clutched 1x drivetrain for off-road security at an unbeatable price. A perfect platform for future upgrades.',
+                drivetrain: 'Microshift Acolyte 1x8',
+                brakes: 'Mechanical Disc',
+                weight: '11.5 kg',
+                feature: 'Clutched 1x Drivetrain',
+                radar: [5, 8, 4, 7] 
+            },
+            sword: {
+                name: 'GRVL AF Sword',
+                price: '£999',
+                description: 'The value sweet spot of the range. A huge upgrade in braking power and gear range makes this a formidable all-rounder right out of the box.',
+                drivetrain: 'Microshift Sword 1x10',
+                brakes: 'TRP Spyre Mechanical',
+                weight: '10.83 kg',
+                feature: 'TRP Spyre Brakes',
+                radar: [7, 9, 7, 8]
+            },
+            apex: {
+                name: 'GRVL AF Apex',
+                price: '£1299',
+                description: 'A major leap into high-performance components. A full 12-speed hydraulic groupset provides smooth shifting and powerful, controlled braking.',
+                drivetrain: 'SRAM Apex 1x12',
+                brakes: 'SRAM Apex Hydraulic',
+                weight: '10.88 kg',
+                feature: 'Hydraulic Braking',
+                radar: [8, 8, 9, 8]
+            },
+            grx: {
+                name: 'GRVL AF GRX',
+                price: '£1700',
+                description: 'The versatility leader. A Shimano GRX 2x12 groupset offers the widest gear range and smallest jumps, ideal for riders who mix fast road with gravel.',
+                drivetrain: 'Shimano GRX 2x12',
+                brakes: 'Shimano GRX Hydraulic',
+                weight: '10.8 kg',
+                feature: '2x12 Gearing',
+                radar: [10, 6, 10, 9]
+            }
+        };
+
+        const chartLabels = ['Gearing Versatility', 'Simplicity (1x)', 'Braking Power', 'All-Terrain Capability'];
+        let radarChart;
+
+        const tooltipTitleCallback = (tooltipItems) => {
+            const item = tooltipItems[0];
+            let label = item.chart.data.labels[item.dataIndex];
+            return Array.isArray(label) ? label.join(' ') : label;
+        };
+
+        function createChart() {
+            const ctx = document.getElementById('model-radar-chart').getContext('2d');
+            radarChart = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: chartLabels,
+                    datasets: [{
+                        label: 'Model Performance',
+                        data: [],
+                        backgroundColor: 'rgba(254, 95, 85, 0.2)',
+                        borderColor: '#FE5F55',
+                        pointBackgroundColor: '#FE5F55',
+                        pointBorderColor: '#fff',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: '#FE5F55'
+                    }]
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                title: tooltipTitleCallback
+                            }
+                        }
+                    },
+                    scales: {
+                        r: {
+                            angleLines: { color: '#BDD5EA' },
+                            grid: { color: '#BDD5EA' },
+                            pointLabels: { 
+                                font: { size: 12, family: "'Source Sans Pro', sans-serif", weight: '600' },
+                                color: '#495867'
+                            },
+                            ticks: {
+                                color: '#495867',
+                                backdropColor: 'rgba(255, 255, 255, 0.75)',
+                                stepSize: 2
+                            },
+                            suggestedMin: 0,
+                            suggestedMax: 10
+                        }
+                    },
+                    elements: {
+                        line: {
+                            borderWidth: 3
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateContent(modelKey) {
+            const data = modelData[modelKey];
+            document.getElementById('model-name').textContent = data.name;
+            document.getElementById('model-price').textContent = data.price;
+            document.getElementById('model-description').textContent = data.description;
+            document.getElementById('model-drivetrain').textContent = data.drivetrain;
+            document.getElementById('model-brakes').textContent = data.brakes;
+            document.getElementById('model-weight').textContent = data.weight;
+            document.getElementById('model-feature').textContent = data.feature;
+
+            radarChart.data.datasets[0].data = data.radar;
+            radarChart.update();
+
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.dataset.model === modelKey) {
+                    btn.classList.add('active');
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            createChart();
+            const tabsContainer = document.getElementById('tabs');
+            
+            tabsContainer.addEventListener('click', (e) => {
+                if (e.target && e.target.matches('.tab-btn')) {
+                    const modelKey = e.target.dataset.model;
+                    updateContent(modelKey);
+                }
+            });
+
+            document.querySelector('.tab-btn[data-model="discovery"]').click();
+        });
+    </script>
+</body>
+</html>
